@@ -1,0 +1,32 @@
+name: build
+on:
+  - push
+  - workflow_dispatch
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Check out Marlin
+        uses: actions/checkout@v3
+        with:
+          repository: MarlinFirmware/Marlin
+          ref: 2.1.2.1
+
+      - name: Check out configuration
+        uses: actions/checkout@v3
+        with:
+          path: marlin-ender3-skr_mini_e3_v3
+
+      - name: Build
+        run: |
+          pip install platformio
+          cp -v marlin-ender3-skr_mini_e3_v3/*.h Marlin/
+          platformio run --environment STM32G0B1RE_btt
+
+      - name: Upload
+        uses: actions/upload-artifact@v3
+        with:
+          name: firmware
+          path: .pio/build/STM32G0B1RE_btt/firmware.bin
